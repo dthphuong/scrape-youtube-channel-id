@@ -11,45 +11,69 @@ console.log(utubeUrls.length)
 var q = async.queue((task, callback) => {
   console.log(`👉 Open: ${task.url}`);
 
-  if (task.url != '' && task.url.indexOf('https://') > -1) {
-    axios.get(task.url)
-      .then((response) => {
-        const startKey = '"externalId":"'
-        const endKey = '","keywords'
+  if (task.url != '') {
+    if (task.url.indexOf('https://') > -1) {
+      axios.get(task.url)
+        .then((response) => {
+          const startKey = '"externalId":"'
+          const endKey = '","keywords'
 
-        if (response.status == 200) {
-          // console.log(response.data)
-          const src = response.data
+          if (response.status == 200) {
+            // console.log(response.data)
+            const src = response.data
 
-          const startIdx = src.indexOf(startKey)
-          const endIdx = src.indexOf(endKey)
-          console.log(`👉 ${startIdx} - ${endIdx}`)
+            const startIdx = src.indexOf(startKey)
+            const endIdx = src.indexOf(endKey)
+            console.log(`👉 ${startIdx} - ${endIdx}`)
 
-          if (startIdx > -1) {
-            // console.log(startIdx + startKey.length)
-            // console.log(endIdx)
+            if (startIdx > -1) {
+              // console.log(startIdx + startKey.length)
+              // console.log(endIdx)
 
-            const externalId = src.substring(startIdx + startKey.length, startIdx + startKey.length + 24)
-            // console.log(`🎉 ${externalId}`)
+              const externalId = src.substring(startIdx + startKey.length, startIdx + startKey.length + 24)
+              // console.log(`🎉 ${externalId}`)
+              console.log(`🎉 https://youtube.com/channel/${externalId}`)
+              fs.appendFileSync('./output.txt', `https://youtube.com/channel/${externalId}\n`)
+              console.log('--------------------------------------------------------')
+              callback()
+            } else {
+              fs.appendFileSync('./output.txt', `\n`)
+              console.log('❌ Can not find')
+              callback()
+            }
+          } else {
+            console.log(`❌ ${response.status} - ${response.statusText}`)
+            callback()
+          }
+        })
+        .catch((err) => {
+          fs.appendFileSync('./output.txt', `\n`)
+          console.log(`❌ ${err}`)
+          callback()
+        })
+    } else {
+      axios.get(searchQueryForChannelByName(task.url))
+        .then((response) => {
+          if (response.status == 200) {
+            // console.log(response.data)
+            const jsonData = response.data
+
+            const externalId = jsonData.items[0].snippet.channelId
             console.log(`🎉 https://youtube.com/channel/${externalId}`)
             fs.appendFileSync('./output.txt', `https://youtube.com/channel/${externalId}\n`)
             console.log('--------------------------------------------------------')
             callback()
           } else {
-            fs.appendFileSync('./output.txt', `\n`)
-            console.log('❌ Can not find')
+            console.log(`❌ ${response.status} - ${response.statusText}`)
             callback()
           }
-        } else {
-          console.log(response.status)
-          console.log(response.statusText)
-        }
-      })
-      .catch((err) => {
-        fs.appendFileSync('./output.txt', `\n`)
-        console.log(`❌ ${err}`)
-        callback()
-      })
+        })
+        .catch((err) => {
+          fs.appendFileSync('./output.txt', `\n`)
+          console.log(`❌ ${err}`)
+          callback()
+        })
+    }
   } else {
     fs.appendFileSync('./output.txt', `\n`)
     console.log('😫 next....')
@@ -69,3 +93,6 @@ q.error(function (err, task) {
   console.error(`task ${task.url} experienced an error`);
 });
 
+const searchQueryForChannelByName = (name) => {
+  return `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${name}&type=channel&key=AIzaSyBrg9ZWFa9qmf8b6UQJ_guNawseglgtMDc`
+}
