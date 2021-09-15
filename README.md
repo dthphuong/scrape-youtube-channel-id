@@ -15,13 +15,13 @@ You need to install:
 Clone the project
 
 ```bash
-  git clone git@github.com:dthphuong/scrape-youtube-channel-id.git
+git clone git@github.com:dthphuong/scrape-youtube-channel-id.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd scrape-youtube-channel-id
+cd scrape-youtube-channel-id
 ```
 
 Create environment file
