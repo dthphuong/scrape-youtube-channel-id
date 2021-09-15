@@ -24,6 +24,11 @@ Go to the project directory
   cd scrape-youtube-channel-id
 ```
 
+Create environment file
+```
+cp .env.dev .env
+```
+
 Install dependencies
 ```bash
 yarn install
