@@ -37,7 +37,7 @@ yarn install
 Let's rock
 
 ```bash
-  node .
+node .
 ```
 
 ## Author
